@@ -16,10 +16,10 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. 设置 JDK（版本需与 build.gradle 中的 sourceCompatibility 一致）
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
       # 3. 授予 gradlew 执行权限（Linux 环境必需）
