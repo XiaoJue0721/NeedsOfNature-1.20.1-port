@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取仓库代码
+      # 1. 拉取代码
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -22,30 +22,24 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      # 3. 授予 gradlew 执行权限（Linux 环境必需）
+      # 3. 赋予 gradlew 执行权限（必须）
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 4. 设置 Gradle 缓存，加速后续构建
+      # 4. 设置 Gradle 缓存
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # 5. 执行构建，生成 JAR ！！！（这一步必须在 Debug 和 Upload 前面）
+      # 5. 执行构建（使用标准 build，Fabric 默认包含 remapJar）
       - name: Build with Gradle
-        run: ./gradlew --no-daemon build
+        run: ./gradlew build
 
-      # 6. 临时调试：现在编译完了，来看看 build 目录下到底生成了什么
-      - name: Debug - List build outputs
-        run: |
-          echo "=== 正在查找所有的 jar 文件 ==="
-          find build/ -name "*.jar" || true
-          echo "=== 正在查看 build 目录结构 ==="
-          ls -R build/ || true
-
-      # 7. 上传构建产物（JAR 文件）
+      # 6. 上传构建产物（必须要在 build 之后）
       - name: Upload Mod JAR
         uses: actions/upload-artifact@v4
         with:
           name: mod-jar
           path: build/libs/*.jar
+          # 这一句极其关键：如果没找到 jar，直接报错，不准假装成功！
+          if-no-files-found: error
           retention-days: 7
