@@ -26,18 +26,23 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # 核心修改：加入 clean 清理环境，加入 remapJar 强制生成最终 Mod 包
+      # 构建命令。如果这里报错，请一定截图发给我！
       - name: Build with Gradle
-        run: ./gradlew clean build remapJar
+        run: ./gradlew clean build
 
-      # 加一步：把生成的路径打印出来看看，方便排错
-      - name: Show Generated JARs
-        run: ls -R build/libs
+      # 全盘搜索：在整个目录下寻找所有的 jar 文件，排除 gradle/wrapper 目录
+      - name: Find All JARs
+        run: |
+          echo "=== 正在全盘搜索所有的 jar 文件 ==="
+          find . -name "*.jar" ! -path "*/gradle/wrapper/*"
 
-      # 上传步骤：路径写宽松一点，匹配所有 jar
-      - name: Upload Mod JAR
+      # 上传：使用通配符 ** 匹配任何目录下的 jar
+      - name: Upload All JARs
         uses: actions/upload-artifact@v4
         with:
-          name: mod-jar
-          path: build/libs/*.jar
+          name: all-jars
+          # 注意这里改成了全盘匹配，并且排除了 wrapper 自带的 jar
+          path: |
+            **/*.jar
+            !**/gradle/wrapper/*.jar
           if-no-files-found: error
