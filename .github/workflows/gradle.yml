@@ -29,6 +29,13 @@ jobs:
       # 4. 设置 Gradle 缓存，加速后续构建
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+      # 临时调试：看看 build 目录下到底生成了什么
+      - name: Debug - List build outputs
+        run: |
+          echo "=== 正在查找所有的 jar 文件 ==="
+          find build/ -name "*.jar"
+          echo "=== 正在查看 build 根目录结构 ==="
+          ls -R build/
 
       # 5. 执行构建，生成 JAR
       - name: Build with Gradle
