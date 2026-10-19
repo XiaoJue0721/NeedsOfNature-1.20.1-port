@@ -11,35 +11,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取代码
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. 设置 JDK 21
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      # 3. 赋予 gradlew 执行权限（必须）
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 4. 设置 Gradle 缓存
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # 5. 执行构建（使用标准 build，Fabric 默认包含 remapJar）
+      # 核心修改：加入 clean 清理环境，加入 remapJar 强制生成最终 Mod 包
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew clean build remapJar
 
-      # 6. 上传构建产物（必须要在 build 之后）
+      # 加一步：把生成的路径打印出来看看，方便排错
+      - name: Show Generated JARs
+        run: ls -R build/libs
+
+      # 上传步骤：路径写宽松一点，匹配所有 jar
       - name: Upload Mod JAR
         uses: actions/upload-artifact@v4
         with:
           name: mod-jar
           path: build/libs/*.jar
-          # 这一句极其关键：如果没找到 jar，直接报错，不准假装成功！
           if-no-files-found: error
-          retention-days: 7
